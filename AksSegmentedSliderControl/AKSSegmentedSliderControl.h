@@ -41,6 +41,7 @@
 @property (nonatomic, retain) UIColor *strokeColor;
 @property (nonatomic, retain) UIColor *shadowColor;
 @property (nonatomic, assign) BOOL touchEnabled;
+@property (nonatomic, assign) BOOL snapToPoint;
 @property (nonatomic, assign, readonly) int currentIndex;
 @property (nonatomic, assign) CGGradientRef gradientForeground;
 @property (nonatomic, assign) float strokeSizeForeground;

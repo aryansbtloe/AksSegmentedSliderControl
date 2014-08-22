@@ -10,52 +10,66 @@
 
 @implementation AKSSegmentedSliderControl
 
+- (void)awakeFromNib
+{
+    [self setup];
+}
+
 - (id)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
-        [self setBackgroundColor:[UIColor clearColor]];
-
-        firstTimeOnly = TRUE;
-        _spaceBetweenPoints = 40.0;
-        _numberOfPoints = 5.0;
-        _heightLine = 10.0;
-        _radiusPoint = 10.0;
-        _shadowSize = CGSizeMake(2.0, 2.0);
-        _shadowBlur = 2.0;
-        _strokeSize = 1.0;
-        _strokeColor = [UIColor blackColor];
-        _shadowColor = [UIColor colorWithWhite:0.0 alpha:0.30];
-        _radiusCircle = 2.0;
-        _moveFinalIndex = 0;
-        _currentIndex = 0;
-        _touchEnabled = YES;
-
-        _strokeColorForeground = [UIColor colorWithWhite:0.3 alpha:1.0];
-        _strokeSizeForeground = 1.0;
-
-        CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-
-        NSArray *gradientColors = [NSArray arrayWithObjects:
-                                   (id)[UIColor whiteColor].CGColor,
-                                   (id)[UIColor colorWithWhite : 0.793 alpha : 1.000].CGColor, nil];
-        CGFloat gradientLocations[] = { 0, 1 };
-        _gradientForeground = CGGradientCreateWithColors(colorSpace, (__bridge CFArrayRef)gradientColors, gradientLocations);
-
-        _positionPoints = [NSMutableArray array];
-
-        CGColorSpaceRelease(colorSpace);
-
-        UIImage *imageToUse = [UIImage imageNamed:@"holder"];
-        holderView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, imageToUse.size.width, imageToUse.size.height)];
-        [holderView setImage:imageToUse];
-        [self addSubview:holderView];
-        [self bringSubviewToFront:holderView];
-        [holderView setUserInteractionEnabled:TRUE];
-        [holderView setCenter:CGPointZero];
-        [self addGestureRecognizer:[[UIPanGestureRecognizer alloc]initWithTarget:self action:@selector(handlePanGesture:)]];
+        [self setup];
     }
 
     return self;
+}
+
+#pragma mark -
+#pragma mark -
+
+- (void)setup
+{
+    [self setBackgroundColor:[UIColor clearColor]];
+    
+    firstTimeOnly = TRUE;
+    _spaceBetweenPoints = 40.0;
+    _numberOfPoints = 5.0;
+    _heightLine = 10.0;
+    _radiusPoint = 10.0;
+    _shadowSize = CGSizeMake(2.0, 2.0);
+    _shadowBlur = 2.0;
+    _strokeSize = 1.0;
+    _strokeColor = [UIColor blackColor];
+    _shadowColor = [UIColor colorWithWhite:0.0 alpha:0.30];
+    _radiusCircle = 2.0;
+    _moveFinalIndex = 0;
+    _currentIndex = 0;
+    _touchEnabled = YES;
+    _snapToPoint = NO;
+    
+    _strokeColorForeground = [UIColor colorWithWhite:0.3 alpha:1.0];
+    _strokeSizeForeground = 1.0;
+    
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+    
+    NSArray *gradientColors = [NSArray arrayWithObjects:
+                               (id)[UIColor whiteColor].CGColor,
+                               (id)[UIColor colorWithWhite : 0.793 alpha : 1.000].CGColor, nil];
+    CGFloat gradientLocations[] = { 0, 1 };
+    _gradientForeground = CGGradientCreateWithColors(colorSpace, (__bridge CFArrayRef)gradientColors, gradientLocations);
+    
+    _positionPoints = [NSMutableArray array];
+    
+    CGColorSpaceRelease(colorSpace);
+    
+    UIImage *imageToUse = [UIImage imageNamed:@"holder"];
+    holderView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, imageToUse.size.width, imageToUse.size.height)];
+    [holderView setImage:imageToUse];
+    [self addSubview:holderView];
+    [self bringSubviewToFront:holderView];
+    [holderView setUserInteractionEnabled:TRUE];
+    [holderView setCenter:CGPointZero];
+    [self addGestureRecognizer:[[UIPanGestureRecognizer alloc]initWithTarget:self action:@selector(handlePanGesture:)]];
 }
 
 #pragma mark -
@@ -185,7 +199,8 @@
             [holderView setCenter:rightMargin];
 		}
 
-        if ([recogniser state] == UIGestureRecognizerStateEnded) {
+        if ([recogniser state] == UIGestureRecognizerStateEnded ||
+            ([recogniser state] == UIGestureRecognizerStateChanged && _snapToPoint)) {
             [self updatePositions];
         }
     }
